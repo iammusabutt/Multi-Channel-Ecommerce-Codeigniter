@@ -1,0 +1,1 @@
+<input type="hidden" name="featured_image_id" value="<?php echo $product_image_id;?>" />

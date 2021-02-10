@@ -1,0 +1,1 @@
+<span class="label label-<?php echo $class;?>"><?php echo $status;?></span>
