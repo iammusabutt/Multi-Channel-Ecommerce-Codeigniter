@@ -1379,20 +1379,25 @@ class Products extends Vendor_Controller
 						}
 					}
 					$product_warehouse = $this->warehouses_model->get_warehouses_with_stock($warehouse_type = NULL, $warehouse_id = NULL, $object_id, $vendor_id, $status = NULL);
+
 					//echo '<pre>'; print_r(count($variable_stock_array)); echo '</pre>';
-					//echo '<pre>'; print_r(count($product_warehouse)); echo '</pre>'; die();
-					if(count($variable_stock_array) === count($product_warehouse)){
-						function array_mapping($v1,$v2)
+					// echo '<pre>'; print_r($product_warehouse); echo '</pre>'; die();
+					if(count($variable_stock_array) === count($product_warehouse) && count($product_warehouse) === count($variable_warehouse_id)){
+						function array_mapping($v1,$v2,$v3)
 						{
 							$stock_array['stock_id'] = $v2->stock_id;
 							$stock_array['stock_quantity'] = $v1;
+							$stock_array['warehouse_id'] = $v3;
 							return $stock_array;
 						}
-						$stock = array_map("array_mapping", $variable_stock_array, $product_warehouse);
+						// echo '<pre>'; print_r($variable_stock_array); echo '</pre>'; die();
+						$stock = array_map("array_mapping", $variable_stock_array, $product_warehouse, $variable_warehouse_id);
+						// echo '<pre>'; print_r($stock); echo '</pre>'; die();
+						$response = array('response'=>'yes', 'message'=>'Stock quantity for warehouses are updated successfully');
 						if(!empty($stock)){
 							$this->products_model->update_stock_batch($stock);
 						}
-						$response = array('response'=>'yes', 'message'=>'Stock quantity for warehouses are updated successfully');
+
 					} else {
 						$response = array('response'=>'no', 'message'=>'Unauthorized action, please try again.');
 					}
