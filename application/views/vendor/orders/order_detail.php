@@ -30,9 +30,9 @@
 			<?php }else{?>
 				<div id="infoMessage"><?php echo $message;?></div>
 			<?php };?>
-			<form id="form" method="post" name="orderdetail" class="form-horizontal">
-				<div class="row">
-					<div class="col-12">
+			<div class="row">
+				<div class="col-md-8 col-sm-12">
+					<form id="form" method="post" name="orderdetail" class="form-horizontal">
 						<div class="card-box">
 							<div class="row">
 								<div class="col-6">
@@ -69,85 +69,86 @@
 								</div>
 							</div><!-- end row -->
 						</div> <!-- end card-box -->
-					<?php if(!empty($order['order_items'])):?>
-						<?php foreach ($order['order_items'] as $order_item):?>
-						<div class="card-box">
-							<div class="row">
-								<div class="col-2">
-									<div class="order-image-section">
-										<?php if(!empty($order_item['product_image'])):?>
-											<a class="showGalleryFromArray gallery_<?php echo $order_item['order_id'];?>"><img src="<?php echo base_url();?><?php echo $order_item['product_image'];?>" alt=""></a>
-										<?php else:?>
-											<a class="placeholder_image_anchor"><img src="<?php echo base_url();?>assets/images/placeholder500x500.jpg" alt=""></a>
-										<?php endif;?>
-									</div>
-								</div>
-								<div class="col-10">
-									<div class="row">
-										<div class="col-12">
-											<h6 class="m-b-0 m-t-5"><?php echo $order_item['order_name'];?></h6>
+						<?php if(!empty($order['order_items'])):?>
+							<?php foreach ($order['order_items'] as $order_item):?>
+							<div class="card-box">
+								<div class="row">
+									<div class="col-2">
+										<div class="order-image-section">
+											<?php if(!empty($order_item['product_image'])):?>
+												<a class="showGalleryFromArray gallery_<?php echo $order_item['order_id'];?>"><img src="<?php echo base_url();?><?php echo $order_item['product_image'];?>" alt=""></a>
+											<?php else:?>
+												<a class="placeholder_image_anchor"><img src="<?php echo base_url();?>assets/images/placeholder500x500.jpg" alt=""></a>
+											<?php endif;?>
 										</div>
 									</div>
-									<hr/>
-									<div class="row">
-										<div class="col-10">
-											<div class="form-group row">
-												<div class="col-lg-12 col-md-12 col-sm-12">
-												</div>
-												<div class="col-lg-12 col-md-12 col-sm-12">
-													<span class="help-block"><small>Variation ID: <a href="<?php echo base_url();?><?php echo $this->uri->segment(1);?>/products?post_type=product_variation&&product_id=<?php echo $order_item['product_id'];?>&&action=edit&&variation_id=<?php echo $order_item['variation_id'];?>"><?php echo $order_item['variation_id'];?></a></small></span> | <span class="help-block"><small>Vendor: <?php echo $order_item['vendor_name'];?></small></span>
-												</div>
+									<div class="col-10">
+										<div class="row">
+											<div class="col-12">
+												<h6 class="m-b-0 m-t-5"><?php echo $order_item['order_name'];?></h6>
 											</div>
 										</div>
-										<div class="col-2">
-											<div class="form-group row">
-												<div class="col-lg-12 col-md-12 col-sm-12">
-													x <?php echo $order_item['item_quantity'];?>
+										<hr/>
+										<div class="row">
+											<div class="col-10">
+												<div class="form-group row">
+													
+													<div class="col-lg-12 col-md-12 col-sm-12">
+														<span class="help-block"><small>Variation ID: <a href="<?php echo base_url();?><?php echo $this->uri->segment(1);?>/products?post_type=product_variation&&product_id=<?php echo $order_item['product_id'];?>&&action=edit&&variation_id=<?php echo $order_item['variation_id'];?>"><?php echo $order_item['variation_id'];?></a></small></span> | <span class="help-block"><small>Vendor: <?php echo $order_item['vendor_name'];?></small></span>
+													</div>
 												</div>
 											</div>
+											<div class="col-2">
+												<div class="form-group row">
+													<div class="col-lg-12 col-md-12 col-sm-12">
+														x <?php echo $order_item['item_quantity'];?>
+													</div>
+												</div>
+											</div>
+											<div class="col-12 d-flex justify-content-between">
+												<div>Current Default Warehouse: </div>
+												<div></div>
+											</div>
 										</div>
-									</div>
 
-								</div>
-							</div><!-- end row -->
-						</div> <!-- end card-box -->
-						<?php endforeach;?>
-					<?php else:?>
-					<?php endif;?>
-					</div><!-- end col -->
-				</div><!-- end row -->
-			<?php echo form_close();?>
-			<div class="card-box">
-				<div class="row">
-					<div class="col-12">
+									</div>
+								</div><!-- end row -->
+							</div> <!-- end card-box -->
+							<?php endforeach;?>
+						<?php else:?>
+						<?php endif;?>
+					<?php echo form_close();?>
+				</div><!-- end col -->
+			
+				<div class="col-md-4 col-sm-12">
+					<div class="card-box" style="max-height: 381px; overflow: auto;">
 						<h6 class="m-b-0 m-t-5">Notes</h6>
 						<hr>
-					</div>
 					
-					<div class="col-12">
-							<textarea rows="1" class="form-control" id="note_comment"></textarea>
-							<button id="submit_comment" class="btn btn-primary btn-block mt-2">
-								Submit
-							</button>
+						<textarea rows="1" class="form-control" id="note_comment"></textarea>
+						<button id="submit_comment" class="btn btn-primary btn-block mt-2">
+							Submit
+						</button>
 						<hr>
-					</div>
-					
-					<?php if(!empty($notes)): ?>
+						<?php if(!empty($notes)): ?>
 						<?php foreach ($notes as $key){?>
-							<div class="col-6">
-								<div class="card-box" style="padding: 20px !important">
-									<p><?=$key->note_content?></p>
-									<div class="d-flex justify-content-between" style="font-size:11px;">
-										<?php if($key->note_author == $this->session->userdata('username')){ ?>
-											<p><b>By:</b> You</p>
-										<?php } else{ ?>
-											<p><b>By:</b> <?=$key->note_author?></p>
-										<?php } ?>
-									</div>
+							
+							<div class="card-box" style="padding: 20px !important">
+								<p><?=$key->note_content?></p>
+								<div class="d-flex justify-content-between" style="font-size:11px;">
+									<?php if($key->note_author == $this->session->userdata('username')){ ?>
+										<p><b>By:</b> You</p>
+									<?php } else{ ?>
+										<p><b>By:</b> <?=$key->note_author?></p>
+									<?php } ?>
 								</div>
 							</div>
+							
 						<?php } ?>
                     <?php endif;?>
+					</div>
+					
+					
 					
 				</div>
 			</div>

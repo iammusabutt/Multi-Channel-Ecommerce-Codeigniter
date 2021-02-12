@@ -10,6 +10,9 @@
 		});
 	});
 </script>
+	<?php 
+	// echo '<pre>'; print_r($order); echo '</pre>';exit(); 
+	?>
 	<!-- Start content -->
 	<div class="content">
 		<div class="container-fluid">
@@ -35,7 +38,7 @@
 			<?php };?>
 			<form id="form" method="post" name="orderdetail" class="form-horizontal">
 				<div class="row">
-					<div class="col-9">
+					<div class="col-md-9 col-sm-12">
 						<div class="card-box">
 							<div class="row">
 								<div class="col-4">
@@ -58,6 +61,7 @@
 											<?php echo form_input($object_status);?>
 										</div>
 									</div>
+									
 								</div>
 								<div class="col-4">
 									<h6 class="m-b-0 m-t-5">Shipping</h6>
@@ -84,6 +88,12 @@
 										<label for="customer_phone" class="col-lg-12 col-md-12 col-sm-12 col-form-label p-b-0">Phone</label>
 										<div class="col-lg-12 col-md-12 col-sm-12">
 											<a href="tel:<?php echo $order['customer_phone'];?>"><?php echo $order['customer_phone'];?></a>
+										</div>
+									</div>
+									<div class="form-group row">
+										<label for="delivery_type" class="col-lg-12 col-md-12 col-sm-12 col-form-label p-b-0">Delivery Type</label>
+										<div class="col-lg-12 col-md-12 col-sm-12">
+											<?php echo $order['delivery_type'];?>
 										</div>
 									</div>
 								</div>
@@ -157,7 +167,7 @@
 							</div><!-- end row -->
 						</div> <!-- end card-box -->
 					</div><!-- end col -->
-					<div class="col-3">
+					<div class="col-md-3 col-sm-12">
 						<div class="card-box">
 							<div class="row">
 								<div class="col-12">

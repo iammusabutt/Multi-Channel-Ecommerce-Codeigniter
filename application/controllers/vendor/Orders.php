@@ -166,6 +166,8 @@ class Orders extends Vendor_Controller
 			
 			$content = $this->input->post('note_comment');
 			$timezone  = 'UP5';
+			// echo '<pre>'; print_r(strtotime(date('Y-m-d H:i:s'))); echo '</pre>';
+			
 			$gmt_time = local_to_gmt(strtotime(date('Y-m-d H:i:s')), $timezone);
 			$local_time = gmt_to_local($gmt_time, $timezone);
 			$data = array(

@@ -129,7 +129,7 @@
 							</div>
 						</div>
 						<div class="row">
-							<div class="col-12">
+							<div class="col-md-6 col-sm-12">
 								<div class="form-group row">
 									<label for="country_id" class="col-lg-12 col-md-12 col-sm-12 col-form-label">Country <span class="text-danger">*</span></label>
 									<div class="col-lg-12 col-md-12 col-sm-12">
@@ -140,6 +140,17 @@
 											<?php endforeach; else:?>
 											<option>No Records Found</option>
 											<?php endif;?>
+										</select>
+									</div>
+								</div>
+							</div>
+							<div class="col-md-6 col-sm-12">
+								<div class="form-group row">
+									<label for="delivery_type" class="col-12 col-form-label">Delivery Type</label>
+									<div class="col-12">
+										<select name="delivery_type" class="selectpicker dropup" data-style="btn-white" data-dropup-auto="false">
+											<option value="Normal">Normal</option>
+											<option value="Fast">Fast</option>
 										</select>
 									</div>
 								</div>

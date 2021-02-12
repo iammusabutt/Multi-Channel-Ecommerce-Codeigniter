@@ -400,6 +400,7 @@ class Orders extends User_Controller
 				$shipping_address = $this->input->post('shipping_address');
 				$country_id = $this->input->post('country_id');
 				$shipper_id = $this->input->post('shipper_id');
+				$delivery_type = $this->input->post('delivery_type');
 
 				// validate form input
 				$this->form_validation->set_rules('ship_by_date','Ship by Date','trim|required');
@@ -440,7 +441,8 @@ class Orders extends User_Controller
 						'courier_id' => '',
 						'tracking_number' => '',
 						'order_prefix' => $user_account['order_prefix'],
-						'order_serial' => $order_serial
+						'order_serial' => $order_serial,
+						'delivery_type' => $delivery_type,
 					);
 					$objectmeta = $this->build_meta_data($primary_key = 'object_id', $object_id, $objectmeta_array);
 					$this->products_model->add_objectmeta($objectmeta);
@@ -844,6 +846,7 @@ class Orders extends User_Controller
 			$order_meta_array['tracking_number'] = $order_meta_data['tracking_number'];
 			$order_meta_array['order_prefix'] = $order_meta_data['order_prefix'];
 			$order_meta_array['order_serial'] = $order_meta_data['order_serial'];
+			$order_meta_array['delivery_type'] = $order_meta_data['delivery_type'];
 		}
 		return $order_meta_array;
 	}
