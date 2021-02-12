@@ -317,4 +317,19 @@ class Orders_model extends CI_Model
 	function fetch_records(){
 
 	}
+	function insert_note($data){
+		$this->db->insert('notes', $data);
+		return $this->db->insert_id();
+	}
+	function get_notes($note_id, $note_order_id, $note_author){
+		$this->db->order_by("note_id", "desc");
+		$note_id	!= NULL ? $this->db->where('note_id', $note_id) : NULL;
+		$note_order_id != NULL ? $this->db->where('note_order_id', $note_order_id) : NULL;
+		$note_author != NULL ? $this->db->where('note_author', $note_author) : NULL;
+		// $author		!= NULL ? $this->db->where('object_author', $author) : NULL;
+		// $slug		!= NULL ? $this->db->where('object_slug', $slug) : NULL;
+		// $status		!= NULL ? $this->db->where('object_status', $status) : NULL;
+		$result = $this->db->get('notes')->result();
+		return $result;
+	}
 }

@@ -107,6 +107,7 @@
 											</div>
 										</div>
 									</div>
+
 								</div>
 							</div><!-- end row -->
 						</div> <!-- end card-box -->
@@ -116,6 +117,40 @@
 					</div><!-- end col -->
 				</div><!-- end row -->
 			<?php echo form_close();?>
+			<div class="card-box">
+				<div class="row">
+					<div class="col-12">
+						<h6 class="m-b-0 m-t-5">Notes</h6>
+						<hr>
+					</div>
+					
+					<div class="col-12">
+							<textarea rows="1" class="form-control" id="note_comment"></textarea>
+							<button id="submit_comment" class="btn btn-primary btn-block mt-2">
+								Submit
+							</button>
+						<hr>
+					</div>
+					
+					<?php if(!empty($notes)): ?>
+						<?php foreach ($notes as $key){?>
+							<div class="col-6">
+								<div class="card-box" style="padding: 20px !important">
+									<p><?=$key->note_content?></p>
+									<div class="d-flex justify-content-between" style="font-size:11px;">
+										<?php if($key->note_author == $this->session->userdata('username')){ ?>
+											<p><b>By:</b> You</p>
+										<?php } else{ ?>
+											<p><b>By:</b> <?=$key->note_author?></p>
+										<?php } ?>
+									</div>
+								</div>
+							</div>
+						<?php } ?>
+                    <?php endif;?>
+					
+				</div>
+			</div>
 		</div> <!-- container -->
 	</div> <!-- content -->
 	<script>
@@ -141,4 +176,38 @@
 			<?php endforeach;?>
 		<?php else:?>
 		<?php endif;?>
+
+		$('#submit_comment').on('click', function(e) {
+    	e.preventDefault(); // avoid to execute the actual submit of the form.
+		e.stopPropagation();
+		var l = Ladda.create(this);
+		l.start();
+        var note_comment = $('#note_comment').val();
+        var object_id = <?php echo $order['object_id'];?>;
+        var url = base_url + account_type + "/orders/ajax_note/" + object_id;
+
+        // alert(url);
+        $.ajax({
+			url: url,
+			type: "POST",
+			dataType: "html",
+			data:{
+				note_comment:note_comment
+				}, // serializes the form's elements.
+			success: function(data) {
+				if(data == "yes") {
+					l.stop();
+         	 		
+					$.Notification.autoHideNotify('success', 'top right', 'Comment Submitted!');
+					setTimeout(function(){
+		                  location.reload();
+		                }, 2500); 
+					
+				} else {
+					l.stop();
+					$.Notification.autoHideNotify('error', 'top right', 'Something went wrong');
+				}
+			}
+		});
+    });
   </script>

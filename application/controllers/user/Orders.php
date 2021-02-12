@@ -22,6 +22,7 @@ class Orders extends User_Controller
 		$this->load->model('products_model');
 		$this->load->model('marketplaces_model');
 		$this->load->model('couriers_model');
+		$this->load->model('stock_model');
 		$this->lang->load('auth');
 		$this->access_type = 'user';
 	}
@@ -387,7 +388,7 @@ class Orders extends User_Controller
 		{
 			$user_id = $this->session->userdata('user_id');
 			$cart_items = $this->products_model->get_cart_items($type = 'product_variation', $user_id, $vendor_id = NULL);
-			//echo '<pre>'; print_r($cart_items); echo '</pre>'; die();
+			// echo '<pre>'; print_r($cart_items); echo '</pre>'; die();
 			if($_POST)
 			{
 				$ship_by_date = $this->input->post('ship_by_date');
@@ -444,12 +445,16 @@ class Orders extends User_Controller
 					$objectmeta = $this->build_meta_data($primary_key = 'object_id', $object_id, $objectmeta_array);
 					$this->products_model->add_objectmeta($objectmeta);
 					if (!empty($cart_items)){
+
 						foreach($cart_items as $i=> $v){
 							$v['your_earning'] = $your_earning[$i];
 							$v['order_number'] = $order_number[$i];
 							$cartitems[] = $v;
 						}
+						// echo '<pre>'; print_r($cartitems); echo '</pre>'; die();
 						foreach($cartitems as $index => $item){
+							$stockmanagement = $this->stock_model->update_stock_on_order($item['object_id'], $item['vendor_id'], $item['quantity']);
+
 							$order_items = array(
 								'order_status' => 'pending',
 								'order_name ' => $item['object_title'],
@@ -683,6 +688,8 @@ class Orders extends User_Controller
 					redirect($this->access_type . "/orders/order_detail/".$object_id, 'refresh');
 				}
 			}
+			$notes = $this->orders_model->get_notes($note_id = NULL, $note_order_id = $object_id, $note_author = NULL);
+			// echo '<pre>'; print_r($notes); echo '</pre>'; exit();
 			$object = $this->orders_model->get_order('order', $object_id);
 			//echo '<pre>'; print_r($object); echo '</pre>';
 			$order = $this->get_order($object);
@@ -705,11 +712,53 @@ class Orders extends User_Controller
 				'disabled' => 'disabled',
 			);
 			$this->data['order'] = $order;
+			$this->data['notes'] = $notes;
 			//echo '<pre>'; print_r($this->data['order']); echo '</pre>'; die();
 			
 			$this->data['class'] = $this->session->flashdata('class');
 			$this->data['message'] = (validation_errors()) ? validation_errors() : $this->session->flashdata('message');
 			$this->_render_page($this->access_type . DIRECTORY_SEPARATOR . 'orders' . DIRECTORY_SEPARATOR . 'order_detail', $this->data);
+		}
+	}
+	public function ajax_note($object_id)
+	{
+		if (!$this->ion_auth->logged_in())
+		{
+			// redirect them to the login page
+			redirect($this->access_type . '/login', 'refresh');
+		}
+		elseif (!$this->ion_auth->in_group($group = 3)) // remove this elseif if you want to enable this for non-admins
+		{
+			// redirect them to the home page because they must be an administrator to view this
+			
+			$this->data['message'] = (validation_errors()) ? validation_errors() : $this->session->flashdata('message');
+			$this->_render_error('errors' . DIRECTORY_SEPARATOR . '401', $this->data);
+		}
+		else
+		{
+			// echo '<pre>'; print_r($this->session->userdata()); echo '</pre>';
+			$user_id = $this->session->userdata('user_id');
+			$username = $this->session->userdata('username');
+			
+			$content = $this->input->post('note_comment');
+			$timezone  = 'UP5';
+			$gmt_time = local_to_gmt(strtotime(date('Y-m-d H:i:s')), $timezone);
+			$local_time = gmt_to_local($gmt_time, $timezone);
+			$data = array(
+				'note_order_id' => $object_id,
+				'note_author' => $username,
+				'note_date' => $local_time,
+				'note_date_gmt' => $gmt_time,
+				'note_content' => $content,
+				'note_approved' => 'approved',
+				'user_id' => $user_id,
+			);
+			if($this->orders_model->insert_note($data))
+			{
+				echo 'yes';
+			}else{
+				echo 'no';
+			}
 		}
 	}
 	function ajax_datatable_pagination(){

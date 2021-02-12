@@ -1031,7 +1031,7 @@ class Ion_auth_model extends CI_Model
 
 		$this->trigger_events('extra_where');
 
-		$query = $this->db->select($this->identity_column . ', email, id, password, active, last_login')
+		$query = $this->db->select($this->identity_column . ', username, email, id, password, active, last_login')
 						  ->where($this->identity_column, $identity)
 						  ->limit(1)
 						  ->order_by('id', 'desc')
@@ -2026,6 +2026,7 @@ class Ion_auth_model extends CI_Model
 		$this->trigger_events('pre_set_session');
 
 		$session_data = array(
+			'username'			   => $user->username,
 		    'identity'             => $user->{$this->identity_column},
 		    $this->identity_column => $user->{$this->identity_column},
 		    'email'                => $user->email,
@@ -2118,7 +2119,7 @@ class Ion_auth_model extends CI_Model
 
 		// get the user
 		$this->trigger_events('extra_where');
-		$query = $this->db->select($this->identity_column . ', id, email, last_login')
+		$query = $this->db->select($this->identity_column . ', username, id, email, last_login')
 						  ->where($this->identity_column, urldecode(get_cookie($this->config->item('identity_cookie_name', 'ion_auth'))))
 						  ->where('remember_code', get_cookie($this->config->item('remember_cookie_name', 'ion_auth')))
 						  ->where('active', 1)
