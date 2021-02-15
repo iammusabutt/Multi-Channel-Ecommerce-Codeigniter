@@ -90,12 +90,14 @@
 											<a href="tel:<?php echo $order['customer_phone'];?>"><?php echo $order['customer_phone'];?></a>
 										</div>
 									</div>
+								<?php if(isset($order['delivery_type'])){?>
 									<div class="form-group row">
 										<label for="delivery_type" class="col-lg-12 col-md-12 col-sm-12 col-form-label p-b-0">Delivery Type</label>
 										<div class="col-lg-12 col-md-12 col-sm-12">
 											<?php echo $order['delivery_type'];?>
 										</div>
 									</div>
+								<?php }?>
 								</div>
 								<div class="col-4">
 									<h6 class="m-b-0 m-t-5">Information</h6>

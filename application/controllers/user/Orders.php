@@ -846,7 +846,9 @@ class Orders extends User_Controller
 			$order_meta_array['tracking_number'] = $order_meta_data['tracking_number'];
 			$order_meta_array['order_prefix'] = $order_meta_data['order_prefix'];
 			$order_meta_array['order_serial'] = $order_meta_data['order_serial'];
-			$order_meta_array['delivery_type'] = $order_meta_data['delivery_type'];
+			if(isset($order_meta_data['delivery_type'])){
+				$order_meta_array['delivery_type'] = $order_meta_data['delivery_type'];
+			}
 		}
 		return $order_meta_array;
 	}
