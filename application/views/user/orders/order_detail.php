@@ -133,18 +133,21 @@
 							<div class="row">
 								<div class="col-12">
 									<div class="row">
-										<div class="col-10">
+										<div class="col-8">
 											<h6 class="m-b-0 m-t-5">Item</h6>
 										</div>
 										<div class="col-2">
 											<h6 class="m-b-0 m-t-5">Qty</h6>
+										</div>
+										<div class="col-2">
+											<h6 class="m-b-0 m-t-5"></h6>
 										</div>
 									</div>
 									<hr/>
 									<?php if(!empty($order['order_items'])):?>
 										<?php foreach ($order['order_items'] as $order_item):?>
 										<div class="row">
-											<div class="col-10">
+											<div class="col-8">
 												<div class="form-group row">
 													<div class="col-lg-12 col-md-12 col-sm-12">
 														<a href="<?php echo base_url();?><?php echo $this->uri->segment(1);?>/products?post_type=product&&product_id=<?php echo $order_item['product_id'];?>&&vendor_id=<?php echo $order_item['vendor_id'];?>&&action=detail"><?php echo $order_item['order_name'];?></a>
@@ -158,6 +161,13 @@
 												<div class="form-group row">
 													<div class="col-lg-12 col-md-12 col-sm-12">
 														x <?php echo $order_item['item_quantity'];?>
+													</div>
+												</div>
+											</div>
+											<div class="col-2">
+												<div class="form-group row">
+													<div class="col-lg-12 col-md-12 col-sm-12">
+														<a data-toggle="modal" data-target="#check_status" class="btn btn-dark">Status</a>
 													</div>
 												</div>
 											</div>
@@ -205,9 +215,12 @@
 									</div>
 									<hr>
 								</div>
-								<div id="fresh_notes">
-							
+								<div class="col-12">
+									<div id="fresh_notes">
+										
+									</div>	
 								</div>
+								
 								<div id="default_notes">
 									<div class="col-12">
 										<?php if(!empty($notes)): ?>
@@ -238,6 +251,29 @@
 			<?php echo form_close();?>
 		</div> <!-- container -->
 	</div> <!-- content -->
+
+<!-- Modal -->
+<div class="modal fade" id="check_status" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        ...
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
 	<script>
 	$('select[name=order_status]').val('<?php echo $order['object_status'];?>');
 	$('.selectpicker').selectpicker('refresh')
