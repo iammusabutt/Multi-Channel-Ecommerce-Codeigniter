@@ -165,26 +165,38 @@ class Orders extends Vendor_Controller
 			$username = $this->session->userdata('username');
 			
 			$content = $this->input->post('note_comment');
-			$timezone  = 'UP5';
-			// echo '<pre>'; print_r(strtotime(date('Y-m-d H:i:s'))); echo '</pre>';
-			
-			$gmt_time = local_to_gmt(strtotime(date('Y-m-d H:i:s')), $timezone);
-			$local_time = gmt_to_local($gmt_time, $timezone);
-			$data = array(
-				'note_order_id' => $object_id,
-				'note_author' => $username,
-				'note_date' => $local_time,
-				'note_date_gmt' => $gmt_time,
-				'note_content' => $content,
-				'note_approved' => 'approved',
-				'user_id' => $user_id,
-			);
-			if($this->orders_model->insert_note($data))
-			{
-				echo 'yes';
+			if(!empty($content)){
+				$timezone  = 'UP5';
+				$gmt_time = local_to_gmt(strtotime(date('Y-m-d H:i:s')), $timezone);
+				$local_time = gmt_to_local($gmt_time, $timezone);
+				$data = array(
+					'note_order_id' => $object_id,
+					'note_author' => $username,
+					'note_date' => $local_time,
+					'note_date_gmt' => $gmt_time,
+					'note_content' => $content,
+					'note_approved' => 'approved',
+					'user_id' => $user_id,
+				);
+				if($this->orders_model->insert_note($data))
+				{
+					// echo 'yes';
+					$notes = $this->orders_model->get_notes($note_id = NULL, $note_order_id = $object_id, $note_author = NULL);
+					$this->data['notes'] = $notes;
+					$theHTMLResponse = $this->load->view($this->access_type . '/ajax_blocks/block_order_notes', $this->data, true);
+					// print_r($theHTMLResponse);exit();
+					$response = array('response'=>'yes','message'=>'Note Submitted Successfully','content'=>$theHTMLResponse);
+					
+				}else{
+					// print_r("Hello");
+					$response = array('response'=>'no','message'=>'Something Went wrong, Hence your Comment cannot be Submitted');
+				}
 			}else{
-				echo 'no';
+				$response =array('response'=>'no','message'=>'Message Field is empty');
 			}
+
+			$this->output->set_content_type('application/json');
+			$this->output->set_output(json_encode($response));
 		}
 	}
 	function ajax_datatable_pagination(){

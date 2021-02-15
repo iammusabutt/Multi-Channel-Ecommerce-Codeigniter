@@ -141,31 +141,33 @@
 					<div class="card-box" style="max-height: 420px; overflow: auto;">
 						<h6 class="m-b-0 m-t-5">Notes</h6>
 						<hr>
-					
-						<textarea rows="1" class="form-control" id="note_comment"></textarea>
-						<button id="submit_comment" class="btn btn-primary btn-block mt-2">
-							Submit
-						</button>
+						<div class="d-flex">
+							<input type="text" class="form-control" id="note_comment">
+							<button id="submit_comment" class="btn btn-primary btn-block w-25">
+								<i class="fa fa-send"></i>
+							</button>
+						</div>
 						<hr>
-						<div id="hello_world">
+						<div id="fresh_notes">
 							
 						</div>
-						<?php if(!empty($notes)): ?>
-						<?php foreach ($notes as $key){?>
-							
-							<div class="card-box" style="padding: 20px !important">
-								<p><?=$key->note_content?></p>
-								<div class="d-flex justify-content-between" style="font-size:11px;">
-									<?php if($key->note_author == $this->session->userdata('username')){ ?>
-										<p><b>By:</b> You</p>
-									<?php } else{ ?>
-										<p><b>By:</b> <?=$key->note_author?></p>
-									<?php } ?>
-								</div>
-							</div>
-							
-						<?php } ?>
-                    <?php endif;?>
+						<div id="default_notes">
+							<?php if(!empty($notes)): ?>
+								<?php foreach ($notes as $key){?>
+									<div class="card-box <?php if($key->note_author == $this->session->userdata('username')){echo 'bg-gold';}?>" style="padding: 20px !important">
+										<p><?=$key->note_content?></p>
+										<div class="d-flex justify-content-between" style="font-size:11px;">
+											<?php if($key->note_author == $this->session->userdata('username')){ ?>
+												<p><b>By:</b> You</p>
+											<?php } else{ ?>
+												<p><b>By:</b> <?=$key->note_author?></p>
+											<?php } ?>
+										</div>
+									</div>
+									
+								<?php } ?>
+	                    	<?php endif;?>
+                    	</div>
 					</div>
 					
 					
@@ -216,47 +218,21 @@
 				note_comment:note_comment
 				}, // serializes the form's elements.
 			success: function(data) {
-				if(data == "yes") {
+				// console.log(data);
+				data = JSON.parse(data);
+				if (data.response == "yes") {
 					l.stop();
-         	 		
-					$.Notification.autoHideNotify('success', 'top right', 'Comment Submitted!');
-					var html = `<div class="card-box" style="padding: 20px !important">
-								<p>`+note_comment+`</p>
-								<p><b>By:</b> You</p>
-							</div>`;
-					$("#hello_world").append(html);
+         	 		$('#fresh_notes').html(data.content);
+					$.Notification.autoHideNotify('success', 'top right', 'Comment Submitted', data.message);
+					$('#default_notes').addClass('d-none');
+					$('#note_comment').val('');
 				} else {
 					l.stop();
-					$.Notification.autoHideNotify('error', 'top right', 'Something went wrong');
+					$.Notification.autoHideNotify('error', 'top right', 'Something Went Wrong', data.message);
 				}
 			}
 		});
     });
 
-	// $(function() {
-	// 		var object_id = <?php echo $order['object_id'];?>;
- //            var url_ = base_url + account_type + "/orders/ajax_note/" + object_id;
- //            var interval;
-
- //            interval = setInterval(function(){
- //                $.ajax({
- //                    url: url_,
- //                    cache: false,
- //                    success: function(data){
- //                        if (data.paid == true) {
- //                            Swal.fire({
- //                                title: 'Great!',
- //                                type: 'success',
- //                                text: 'Your payment has been received.'
- //                            }).then((result) => {
- //                                clearInterval(interval);
- //                                window.location.href = '{{ route('dashboard') }}';
- //                            });
-
- //                        }
- //                    }
- //                });
- //            }, 10000);
-
- //        });
+	
   </script>

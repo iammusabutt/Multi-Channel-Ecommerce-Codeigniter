@@ -197,32 +197,38 @@
 								</div>
 								
 								<div class="col-12">
-										<textarea rows="1" class="form-control" id="note_comment"></textarea>
-										<button id="submit_comment" class="btn btn-primary btn-block mt-2">
-											Submit
+									<div class="d-flex">
+										<input type="text" class="form-control" id="note_comment">
+										<button id="submit_comment" class="btn btn-primary btn-block w-25">
+											<i class="fa fa-send"></i>
 										</button>
+									</div>
 									<hr>
 								</div>
-								<div class="col-12">
-									<?php if(!empty($notes)): ?>
-										<?php foreach ($notes as $key){?>
-											<div class="card-box" style="padding: 20px !important">
-												<p><?=$key->note_content?></p>
-												<div class="d-flex justify-content-between" style="font-size:11px;">
-													<?php if($key->note_author == $this->session->userdata('username')){ ?>
-														<p><b>By:</b> You</p>
-													<?php } else{ ?>
-														<p><b>By:</b> <?=$key->note_author?></p>
-													<?php } ?>
-												</div>
-											</div>
-										<?php } ?>
-	                                	
-									<?php else:?>
-	                                	
-									<?php endif;?>
+								<div id="fresh_notes">
+							
 								</div>
-								
+								<div id="default_notes">
+									<div class="col-12">
+										<?php if(!empty($notes)): ?>
+											<?php foreach ($notes as $key){?>
+												<div class="card-box <?php if($key->note_author == $this->session->userdata('username')){echo 'bg-gold';}?>" style="padding: 20px !important">
+													<p><?=$key->note_content?></p>
+													<div class="d-flex justify-content-between" style="font-size:11px;">
+														<?php if($key->note_author == $this->session->userdata('username')){ ?>
+															<p><b>By:</b> You</p>
+														<?php } else{ ?>
+															<p><b>By:</b> <?=$key->note_author?></p>
+														<?php } ?>
+													</div>
+												</div>
+											<?php } ?>
+		                                	
+										<?php else:?>
+		                                	
+										<?php endif;?>
+									</div>
+								</div>
 
 								</div>
 							</div>
@@ -264,19 +270,19 @@
 			dataType: "html",
 			data:{
 				note_comment:note_comment
-				}, // serializes the form's elements.
+			}, // serializes the form's elements.
 			success: function(data) {
-				if(data == "yes") {
+				// console.log(data);
+				data = JSON.parse(data);
+				if (data.response == "yes") {
 					l.stop();
-         	 		
-					$.Notification.autoHideNotify('success', 'top right', 'Comment Submitted!');
-					setTimeout(function(){
-		                  location.reload();
-		                }, 2500); 
-					
+         	 		$('#fresh_notes').html(data.content);
+					$.Notification.autoHideNotify('success', 'top right', 'Comment Submitted', data.message);
+					$('#default_notes').addClass('d-none');
+					$('#note_comment').val('');
 				} else {
 					l.stop();
-					$.Notification.autoHideNotify('error', 'top right', 'Something went wrong');
+					$.Notification.autoHideNotify('error', 'top right', 'Something Went Wrong', data.message);
 				}
 			}
 		});
