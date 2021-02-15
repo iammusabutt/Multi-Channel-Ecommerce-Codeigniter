@@ -10,6 +10,9 @@
 		});
 	});
 </script>
+	<?php 
+		// echo '<pre>'; print_r($order); echo '</pre>';
+	?>
 	<!-- Start content -->
 	<div class="content">
 		<div class="container-fluid">
@@ -23,6 +26,7 @@
 					</div>
 				</div>
 			</div>
+
 			<?php if(isset($class)){?>
 			<div id="infoMessage">
 				<p class="<?php echo $class;?>"><?php echo $message;?></p>
@@ -35,7 +39,7 @@
 					<form id="form" method="post" name="orderdetail" class="form-horizontal">
 						<div class="card-box">
 							<div class="row">
-								<div class="col-6">
+								<div class="col-lg-6 col-md-6 col-sm-12">
 									<h6 class="m-b-0 m-t-5">General</h6>
 									<hr/>
 									<div class="form-group row">
@@ -50,7 +54,7 @@
 										</div>
 									</div>
 								</div>
-								<div class="col-6">
+								<div class="col-lg-6 col-md-6 col-sm-12">
 									<h6 class="m-b-0 m-t-5">Information</h6>
 									<hr/>
 									<div class="form-group row">
@@ -67,6 +71,7 @@
 										</div>
 									</div>
 								</div>
+								
 							</div><!-- end row -->
 						</div> <!-- end card-box -->
 						<?php if(!empty($order['order_items'])):?>
@@ -121,7 +126,19 @@
 				</div><!-- end col -->
 			
 				<div class="col-md-4 col-sm-12">
-					<div class="card-box" style="max-height: 381px; overflow: auto;">
+					<?php if(isset($order['delivery_type'])){?>
+						<div class="card-box">
+							<h6 class="m-b-0 m-t-5">Delivery Type</h6>
+							<hr/>
+							<div>
+								<div class="col-lg-12 col-md-12 col-sm-12">
+									<?php echo $order['delivery_type'];?>
+								</div>
+							</div>
+						</div>
+
+					<?php }?>
+					<div class="card-box" style="max-height: 420px; overflow: auto;">
 						<h6 class="m-b-0 m-t-5">Notes</h6>
 						<hr>
 					
@@ -130,6 +147,9 @@
 							Submit
 						</button>
 						<hr>
+						<div id="hello_world">
+							
+						</div>
 						<?php if(!empty($notes)): ?>
 						<?php foreach ($notes as $key){?>
 							
@@ -200,10 +220,11 @@
 					l.stop();
          	 		
 					$.Notification.autoHideNotify('success', 'top right', 'Comment Submitted!');
-					setTimeout(function(){
-		                  location.reload();
-		                }, 2500); 
-					
+					var html = `<div class="card-box" style="padding: 20px !important">
+								<p>`+note_comment+`</p>
+								<p><b>By:</b> You</p>
+							</div>`;
+					$("#hello_world").append(html);
 				} else {
 					l.stop();
 					$.Notification.autoHideNotify('error', 'top right', 'Something went wrong');
@@ -211,4 +232,31 @@
 			}
 		});
     });
+
+	// $(function() {
+	// 		var object_id = <?php echo $order['object_id'];?>;
+ //            var url_ = base_url + account_type + "/orders/ajax_note/" + object_id;
+ //            var interval;
+
+ //            interval = setInterval(function(){
+ //                $.ajax({
+ //                    url: url_,
+ //                    cache: false,
+ //                    success: function(data){
+ //                        if (data.paid == true) {
+ //                            Swal.fire({
+ //                                title: 'Great!',
+ //                                type: 'success',
+ //                                text: 'Your payment has been received.'
+ //                            }).then((result) => {
+ //                                clearInterval(interval);
+ //                                window.location.href = '{{ route('dashboard') }}';
+ //                            });
+
+ //                        }
+ //                    }
+ //                });
+ //            }, 10000);
+
+ //        });
   </script>
