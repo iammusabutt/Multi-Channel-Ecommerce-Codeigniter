@@ -11,7 +11,7 @@
 	});
 </script>
 	<?php 
-	// echo '<pre>'; print_r($order); echo '</pre>';exit(); 
+		// echo '<pre>'; print_r($order); echo '</pre>';exit(); 
 	?>
 	<!-- Start content -->
 	<div class="content">
@@ -140,7 +140,7 @@
 											<h6 class="m-b-0 m-t-5">Qty</h6>
 										</div>
 										<div class="col-2">
-											<h6 class="m-b-0 m-t-5"></h6>
+											<h6 class="m-b-0 m-t-5">Status</h6>
 										</div>
 									</div>
 									<hr/>
@@ -165,11 +165,20 @@
 												</div>
 											</div>
 											<div class="col-2">
-												<div class="form-group row">
-													<div class="col-lg-12 col-md-12 col-sm-12">
-														<a data-toggle="modal" data-target="#check_status" class="btn btn-dark">Status</a>
+												<?php if($order_item['order_status'] =="pending"):?>
+													<div class="form-group row">
+														<div class="col-lg-12 col-md-12 col-sm-12">
+															<a style="color:white;" id="change_status" class="btn btn-dark" data-vendor="<?=$order_item['vendor_id']?>" data-object="<?=$order_item['order_id']?>" data-product="<?=$order_item['product_id']?>" data-variation="<?=$order_item['variation_id']?>" data-quantity="<?=$order_item['item_quantity']?>" data-status="<?=$order_item['order_status']?>"
+															>Change Status</a>
+														</div>
 													</div>
-												</div>
+												<?php else:?>
+													<div class="form-group row">
+														<div class="col-lg-12 col-md-12 col-sm-12">
+															<?=$order_item['order_status']?>
+														</div>
+													</div>
+												<?php endif;?>
 											</div>
 										</div>
 										<?php endforeach;?>
@@ -257,18 +266,37 @@
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+        <h5 class="modal-title" id="exampleModalLabel">Item Status</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
-      <div class="modal-body">
-        ...
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary">Save changes</button>
-      </div>
+      	<form method="POST">
+      		<div class="modal-body">
+        		<input type="hidden" id="modal_product_id">
+        		<input type="hidden" id="modal_vendor_id">	    
+        		<input type="hidden" id="modal_object_id">	    
+        		<input type="hidden" id="modal_variation_id">	    
+        		<input type="hidden" id="modal_quantity">
+	        	<div class="form-group">
+	        		<label>Order Status</label>
+	        		<select id="modal_status" class="form-control selectpicker" required>
+	        			<option selected disabled="">Select Action</option>
+	        			<option value="Return To User">Return To User</option>
+	        			<option value="Return To Vendor">Return To Vendor</option>
+	        		</select>
+	        	</div>
+	        	<div class="form-group">
+	        		<label>Note</label>
+	        		<textarea rows="1" class="form-control" id="modal_note_comment" required></textarea>
+	        	</div>
+        
+	      	</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+				<button type="submit" id="change-item-status" class="btn btn-success" disabled>Save changes</button>
+			</div>
+	    </form>
     </div>
   </div>
 </div>
@@ -276,9 +304,28 @@
 
 	<script>
 	$('select[name=order_status]').val('<?php echo $order['object_status'];?>');
-	$('.selectpicker').selectpicker('refresh')
+	// $('.selectpicker').selectpicker('refresh');
 	</script>
 	<script>
+	$('#change_status').on('click', function(e){
+		// var l = Ladda.create(this);
+		// l.start();
+		$('#check_status').modal('show');
+		var product_id = $(this).data('product');
+		var vendor_id = $(this).data('vendor');
+		var object_id = $(this).data('object');
+		var variation_id = $(this).data('variation');
+		var quantity = $(this).data('quantity');
+		var status = $(this).data('status');
+		
+		$('#modal_product_id').val(product_id);
+		$('#modal_vendor_id').val(vendor_id);
+		$('#modal_object_id').val(object_id);
+		$('#modal_variation_id').val(variation_id);
+		$('#modal_quantity').val(quantity);
+		$('#modal_status').val(status);
+		// l.stop();
+	});
     $('.showGalleryFromArray').on('click', function() {
         SimpleLightbox.open({
             items: [
@@ -289,7 +336,84 @@
             ]
         });
     });
-
+    $('#modal_status').change(function(){
+    	if($('#modal_status option:selected').text() == "Return To User"){
+			$('#change-item-status').removeAttr('disabled');
+			$('#change-item-status').removeAttr('disabled', 'disabled');
+		}else if($('#modal_status option:selected').text() == "Return To Vendor"){
+			$('#change-item-status').removeAttr('disabled');
+			$('#change-item-status').removeAttr('disabled', 'disabled');
+		}else{
+			$('#change-item-status').attr('disabled');
+            $('#change-item-status').attr('disabled','disabled');
+		}
+	});
+    $('#change-item-status').on('click', function(e) {
+    	e.preventDefault(); // avoid to execute the actual submit of the form.
+		e.stopPropagation();
+		var l = Ladda.create(this);
+		l.start();
+		var product_id = $('#modal_product_id').val();
+		var vendor_id = $('#modal_vendor_id').val();
+		var variation_id = $('#modal_variation_id').val();
+		var quantity = $('#modal_quantity').val();
+		var modal_status = $('#modal_status').val();
+		var order_id = $('#modal_object_id').val();
+		var note_comment = $('#modal_note_comment').val();
+        var object_id = <?php echo $order['object_id'];?>;
+        var url = base_url + account_type + "/orders/ajax_note/" + object_id;
+        var url_orig = base_url + account_type + "/orders/item_status/" + object_id;
+        $.ajax({
+			url: url_orig,
+			type: "POST",
+			dataType: "html",
+			data:{
+				product_id:product_id,
+				vendor_id:vendor_id,
+				order_id:order_id,
+				variation_id:variation_id,
+				quantity:quantity,
+				modal_status:modal_status,
+				note_comment:note_comment,
+			}, // serializes the form's elements.
+			success: function(data) {
+				
+				if (data == "yes") {
+					// l.stop();
+					// $.Notification.autoHideNotify('success', 'top right', 'Status Changed', 'Status Of Order Item Changes Successfully');
+         	 		$.ajax({
+						url: url,
+						type: "POST",
+						dataType: "html",
+						data:{
+							note_comment:note_comment
+						}, // serializes the form's elements.
+						success: function(data) {
+							// console.log(data);
+							data = JSON.parse(data);
+							if (data.response == "yes") {
+								l.stop();
+			         	 		$('#fresh_notes').html(data.content);
+								$.Notification.autoHideNotify('success', 'top right', 'Comment Submitted', data.message);
+								$('#default_notes').addClass('d-none');
+								// $('#note_comment').val('');
+								setTimeout(function(){ 
+								     location.reload();
+								}, 5000);
+							} else {
+								l.stop();
+								$.Notification.autoHideNotify('error', 'top right', 'Something Went Wrong', data.message);
+							}
+						}
+					});
+				} else {
+					l.stop();
+					$.Notification.autoHideNotify('error', 'top right', 'Something Went Wrong', 'Make Sure Fields are not Empty.');
+				}
+			}
+		});
+        
+	});
     $('#submit_comment').on('click', function(e) {
     	e.preventDefault(); // avoid to execute the actual submit of the form.
 		e.stopPropagation();

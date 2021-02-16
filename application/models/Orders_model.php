@@ -332,4 +332,8 @@ class Orders_model extends CI_Model
 		$result = $this->db->get('notes')->result();
 		return $result;
 	}
+	function update_order_status($data, $order_id){
+		$this->db->where('order_id', $order_id);
+		$this->db->update('orders', $data);
+	}
 }

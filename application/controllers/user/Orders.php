@@ -23,6 +23,7 @@ class Orders extends User_Controller
 		$this->load->model('marketplaces_model');
 		$this->load->model('couriers_model');
 		$this->load->model('stock_model');
+		$this->load->model('warehouses_model');
 		$this->lang->load('auth');
 		$this->access_type = 'user';
 	}
@@ -455,7 +456,8 @@ class Orders extends User_Controller
 						}
 						// echo '<pre>'; print_r($cartitems); echo '</pre>'; die();
 						foreach($cartitems as $index => $item){
-							$stockmanagement = $this->stock_model->update_stock_on_order($item['object_id'], $item['vendor_id'], $item['quantity']);
+							$get_default_warehouse = $this->warehouses_model->get_warehouse($warehouse_id = NULL, $type = 'default', $name = NULL, $location = NULL, $author = $item['vendor_id'], $status = NULL);
+							$stockmanagement = $this->stock_model->update_stock_on_order($item['object_id'], $get_default_warehouse->warehouse_id, $item['vendor_id'], $item['quantity']);
 
 							$order_items = array(
 								'order_status' => 'pending',
@@ -775,6 +777,57 @@ class Orders extends User_Controller
 
 			$this->output->set_content_type('application/json');
 			$this->output->set_output(json_encode($response));
+		}
+	}
+	public function item_status($object_id)
+	{
+		if (!$this->ion_auth->logged_in())
+		{
+			// redirect them to the login page
+			redirect($this->access_type . '/login', 'refresh');
+		}
+		elseif (!$this->ion_auth->in_group($group = 3)) // remove this elseif if you want to enable this for non-admins
+		{
+			// redirect them to the home page because they must be an administrator to view this
+			
+			$this->data['message'] = (validation_errors()) ? validation_errors() : $this->session->flashdata('message');
+			$this->_render_error('errors' . DIRECTORY_SEPARATOR . '401', $this->data);
+		}
+		else
+		{
+			// print_r($_POST);exit();
+			// echo '<pre>'; print_r($this->session->userdata()); echo '</pre>';
+			$user_id = $this->session->userdata('user_id');
+			$username = $this->session->userdata('username');
+			
+			$content = $this->input->post('note_comment');
+			$product_id = $this->input->post('product_id');
+			$vendor_id = $this->input->post('vendor_id');
+			$order_id = $this->input->post('order_id');
+			$variation_id = $this->input->post('variation_id');
+			$quantity = $this->input->post('quantity');
+			$modal_status = $this->input->post('modal_status');
+
+			if(!empty($content)){
+				
+				$data = array();
+				$data['order_status'] = $modal_status;
+				$update_order_status = $this->orders_model->update_order_status($data, $order_id);
+				$get_default_warehouse = $this->warehouses_model->get_warehouse($warehouse_id = NULL, $type = 'default', $name = NULL, $location = NULL, $author = $vendor_id, $status = NULL);
+				// echo '<pre>'; print_r($get_default_warehouse); echo '</pre>'; die();
+				$update_stock = $this->stock_model->update_stock_on_order_reverse($variation_id, $get_default_warehouse->warehouse_id, $vendor_id, $quantity);
+				// if($update_stock)
+				// {
+					echo 'yes';
+					
+				// }else{
+				// 	// print_r("Hello");exit();
+				// 	echo 'no';
+				// }
+			}else{
+				echo 'no';
+			}
+
 		}
 	}
 	function ajax_datatable_pagination(){
