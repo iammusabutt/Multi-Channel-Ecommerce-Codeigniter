@@ -336,4 +336,14 @@ class Orders_model extends CI_Model
 		$this->db->where('order_id', $order_id);
 		$this->db->update('orders', $data);
 	}
+	function add_orders_stats($data)
+	{
+		$this->db->insert('orders_stats', $data);
+		return $this->db->insert_id();
+	}
+	function add_orders_lookup($data)
+	{
+		$this->db->insert('orders_lookup', $data);
+		return $this->db->insert_id();
+	}
 }

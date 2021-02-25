@@ -447,6 +447,18 @@ class Orders extends User_Controller
 					);
 					$objectmeta = $this->build_meta_data($primary_key = 'object_id', $object_id, $objectmeta_array);
 					$this->products_model->add_objectmeta($objectmeta);
+
+					// Create Entry in Order_Stats
+					$order_stat_data = array(
+						'object_id' => $object_id,
+						'date_created' => $local_time,
+						'date_created_gmt' => $gmt_time,
+						'num_items_sold' => count($cart_items),
+						'status' => 'pending',
+						'customer_id ' => $user_id,
+					);
+					$order_stat = $this->orders_model->add_orders_stats($order_stat_data);
+
 					if (!empty($cart_items)){
 
 						foreach($cart_items as $i=> $v){
@@ -489,6 +501,7 @@ class Orders extends User_Controller
 									'meta_value' => $item['order_number'],
 								),
 							);
+
 							$product = $this->products_model->get_object($item['object_id'], $type = NULL, $parent = NULL, $author = NULL, $slug = NULL, $status = NULL);
 							if($product['object_type'] == 'product_variation'){
 								$additional_ordermeta = array(
@@ -513,6 +526,19 @@ class Orders extends User_Controller
 								);
 							}
 							$order_meta = array_merge($ordermeta, $additional_ordermeta);
+
+							// Order Lookup
+							$order_lookup_data = array(
+								'order_id' => $order_id,
+								'object_parent' => $product['object_parent'],
+								'object_id' => $product['object_id'],
+								'customer_id' => $user_id,
+								'date_created'=> $local_time,
+								'product_qty' => $item['quantity'],
+							);
+							$order_lookup = $this->orders_model->add_orders_lookup($order_lookup_data);
+
+
 							$this->orders_model->add_ordermeta($order_meta);
 							$args = array(
 								'role_id' => $user_id,
@@ -807,9 +833,47 @@ class Orders extends User_Controller
 			$variation_id = $this->input->post('variation_id');
 			$quantity = $this->input->post('quantity');
 			$modal_status = $this->input->post('modal_status');
+			$timezone  = 'UP5';
+			$gmt_time = local_to_gmt(strtotime(date('Y-m-d H:i:s')), $timezone);
+			$local_time = gmt_to_local($gmt_time, $timezone);
 
 			if(!empty($content)){
-				
+				$object_data = array(
+					'object_type ' => $modal_status,
+					'object_content' => '',
+					'object_parent' => $object_id,
+					'object_status' => $modal_status,
+					'object_date' => $local_time,
+					'object_date_gmt' => $gmt_time,
+					'object_modified' => $local_time,
+					'object_modified_gmt' => $gmt_time,
+					'object_author' => $user_id,
+				);
+				$object_ids = $this->orders_model->add_object($object_data);
+				// Order Lookup
+				$order_lookup_data = array(
+					'order_id' => $order_id,
+					'object_parent' => $product_id,
+					'object_id' => $variation_id,
+					'customer_id' => $user_id,
+					'date_created'=> $local_time,
+					'product_qty' => "-".$quantity,
+				);
+				$order_lookup = $this->orders_model->add_orders_lookup($order_lookup_data);
+
+				// Create Entry in Order_Stats
+				$order_stat_data = array(
+					'object_id' => $object_id,
+					'date_created' => $local_time,
+					'date_created_gmt' => $gmt_time,
+					'num_items_sold' => $quantity,
+					'status' => $modal_status,
+					'customer_id ' => $user_id,
+				);
+				$order_stat = $this->orders_model->add_orders_stats($order_stat_data);
+
+
+
 				$data = array();
 				$data['order_status'] = $modal_status;
 				$update_order_status = $this->orders_model->update_order_status($data, $order_id);
