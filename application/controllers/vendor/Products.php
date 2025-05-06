@@ -760,6 +760,7 @@ class Products extends Vendor_Controller
 			if(!empty($variation))
 			{
 				$warehouse_default = $this->warehouses_model->get_warehouse_with_stock($type = 'default', $warehouse_id = NULL, $variation_id, $vendor_id, $status = NULL);
+				$warehouse_default_name = $this->warehouses_model->get_warehouse($warehouse_id = NULL, $type = 'default', $name = NULL, $location = NULL, $author = $vendor_id, $status = NULL);
 				$warehouse_additional = $this->warehouses_model->get_warehouses($type = 'additional', $name = NULL, $location = NULL, $author = $vendor_id, $status = NULL);
 				$product_warehouse = $this->warehouses_model->get_warehouses_with_stock($type = 'additional', $warehouse_id = NULL, $variation_id, $vendor_id, $status = NULL);
 				$stock = $this->products_model->get_stock($stock_id = NULL, $warehouse_id = NULL, $object_id = $variation_id, $vendor_id);
@@ -787,11 +788,12 @@ class Products extends Vendor_Controller
 					'class' => 'form-control',
 					'placeholder' => 'Quantity',
 				);
-				//echo '<pre>'; print_r($product_details); echo '</pre>'; die();
+				// echo '<pre>'; print_r($warehouse_default_name); echo '</pre>'; die();
 				if(!empty($product_details)){
 					$this->data['product'] = $product_details;
 					$this->data['variation'] = $variation;
 					$this->data['warehouse_default'] = $warehouse_default;
+					$this->data['warehouse_default_name'] = $warehouse_default_name;
 					$this->data['warehouse_additional'] = $warehouse_additional;
 					$this->data['product_warehouse'] = $product_warehouse;
 					$this->data['title'] = lang('title_products');
@@ -1340,8 +1342,10 @@ class Products extends Vendor_Controller
 			{
 				$object_id = $this->input->post('variation_id');
 				$variable_stock = $this->input->post('variable_stock');
+				$variable_warehouse_ids = $this->input->post('variable_warehouse_id');
 				
 				$variable_stock_array = explode(',', $variable_stock);
+				$variable_warehouse_id = explode(',', $variable_warehouse_ids);
 				//$product_warehouse = $this->warehouses_model->get_warehouses_with_stock($warehouse_type = NULL, $warehouse_id = NULL, $object_id, $vendor_id, $status = NULL);
 				$warehouse = $this->warehouses_model->get_warehouse($warehouse_id = NULL, $type = 'default', $name = NULL, $location = NULL, $vendor_id, $status = NULL);
 				//echo '<pre>'; print_r($warehouse); echo '</pre>'; die();
@@ -1375,20 +1379,25 @@ class Products extends Vendor_Controller
 						}
 					}
 					$product_warehouse = $this->warehouses_model->get_warehouses_with_stock($warehouse_type = NULL, $warehouse_id = NULL, $object_id, $vendor_id, $status = NULL);
+
 					//echo '<pre>'; print_r(count($variable_stock_array)); echo '</pre>';
-					//echo '<pre>'; print_r(count($product_warehouse)); echo '</pre>'; die();
-					if(count($variable_stock_array) === count($product_warehouse)){
-						function array_mapping($v1,$v2)
+					// echo '<pre>'; print_r($product_warehouse); echo '</pre>'; die();
+					if(count($variable_stock_array) === count($product_warehouse) && count($product_warehouse) === count($variable_warehouse_id)){
+						function array_mapping($v1,$v2,$v3)
 						{
 							$stock_array['stock_id'] = $v2->stock_id;
 							$stock_array['stock_quantity'] = $v1;
+							$stock_array['warehouse_id'] = $v3;
 							return $stock_array;
 						}
-						$stock = array_map("array_mapping", $variable_stock_array, $product_warehouse);
+						// echo '<pre>'; print_r($variable_stock_array); echo '</pre>'; die();
+						$stock = array_map("array_mapping", $variable_stock_array, $product_warehouse, $variable_warehouse_id);
+						// echo '<pre>'; print_r($stock); echo '</pre>'; die();
+						$response = array('response'=>'yes', 'message'=>'Stock quantity for warehouses are updated successfully');
 						if(!empty($stock)){
 							$this->products_model->update_stock_batch($stock);
 						}
-						$response = array('response'=>'yes', 'message'=>'Stock quantity for warehouses are updated successfully');
+
 					} else {
 						$response = array('response'=>'no', 'message'=>'Unauthorized action, please try again.');
 					}

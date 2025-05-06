@@ -146,16 +146,32 @@
 						<hr>
 						<div class="card-box p-20 warehouse-locations action-row">
 							<div class="row">
-								<div class="col-4">
-									<h6 class="m-b-0 m-t-5"><?php echo $warehouse_default->warehouse_name;?> - <?php echo $warehouse_default->warehouse_location;?> (Default)</h6>
-									<small id="emailHelp" class="form-text text-muted action-links">
-										<a class="text-primary pointer">stock movement</a> | <a id="delete_warehouse"  data-warehouse-id="<?php if(!empty($warehouse_default)){echo $warehouse_default->warehouse_id;};?>" data-warehouse-type="default" class="text-danger pointer">delete</a>
-									</small>
-								</div>
-								<div class="col-8">
-									<input type="text" name="variable_stock[]" value="<?php if(!empty($warehouse_default)){echo $warehouse_default->stock_quantity;};?>" id="variable_stock" class="form-control" placeholder="Quantity">
-									<span class="help-block"><small>Available stock in hand.</small></span>
-								</div>
+								<?php if(isset($warehouse_default)){?>
+									<div class="col-4">
+										<h6 class="m-b-0 m-t-5"><?php echo $warehouse_default->warehouse_name;?> - <?php echo $warehouse_default->warehouse_location;?> (Default)</h6>
+										<small id="emailHelp" class="form-text text-muted action-links">
+											<a class="text-primary pointer">stock movement</a> | <a id="delete_warehouse"  data-warehouse-id="<?php if(!empty($warehouse_default)){echo $warehouse_default->warehouse_id;};?>" data-warehouse-type="default" class="text-danger pointer">delete</a>
+										</small>
+									</div>
+									<div class="col-8">
+										<input type="text" name="variable_stock[]" value="<?php if(!empty($warehouse_default)){echo $warehouse_default->stock_quantity;};?>" id="variable_stock" class="form-control" placeholder="Quantity">
+										<input type="hidden" name="variable_warehouse_id[]" value="<?php echo $warehouse_default->warehouse_id; ?>">
+										<span class="help-block"><small>Available stock in hand.</small></span>
+									</div>
+								<?php }else{ ?>
+									<div class="col-4">
+										<h6 class="m-b-0 m-t-5"><?php echo $warehouse_default_name->warehouse_name;
+										?> - <?php echo $warehouse_default_name->warehouse_location;?> (Default)</h6>
+										<small id="emailHelp" class="form-text text-muted action-links">
+											<a class="text-primary pointer">stock movement</a> | <a id="delete_warehouse"  data-warehouse-id="<?php if(!empty($warehouse_default_name)){echo $warehouse_default_name->warehouse_id;};?>" data-warehouse-type="default" class="text-danger pointer">delete</a>
+										</small>
+									</div>
+									<div class="col-8">
+										<input type="hidden" name="variable_warehouse_id[]" value="<?php echo $warehouse_default_name->warehouse_id; ?>">
+										<input type="text" name="variable_stock[]" id="variable_stock" class="form-control" placeholder="Quantity">
+										<span class="help-block"><small>Available stock in hand.</small></span>
+									</div>
+								<?php } ?>
 							</div>
 						</div>
 						<div class="additional-warehouse-locations">
@@ -170,6 +186,7 @@
 									</div>
 									<div class="col-8">
 										<input type="text" name="variable_stock[]" value="<?php echo $warehouse->stock_quantity;?>" id="variable_stock" class="form-control" placeholder="Quantity">
+										<input type="hidden" name="variable_warehouse_id[]" value="<?php echo $warehouse->warehouse_id; ?>">
 										<span class="help-block"><small>Available stock in hand.</small></span>
 									</div>
 								</div>
@@ -194,11 +211,13 @@
 		l.start();
     	//var warehouse_type = $(this).data('warehouse-type');
 		var variable_stock = $("input[name='variable_stock[]']").map(function(){return $(this).val();}).get();
+		var variable_warehouse_id = $("input[name='variable_warehouse_id[]']").map(function(){return $(this).val();}).get();
 		var variation_id = "<?php echo $_GET['variation_id'];?>";
 		console.log(variable_stock);
 		var form_data = new FormData(); 
 		form_data.append("variable_stock", variable_stock)
 		form_data.append("variation_id", variation_id)
+		form_data.append("variable_warehouse_id", variable_warehouse_id)
 		var url = base_url + account_type + "/products/ajax_compute_inventory";
 
 		$.ajax({

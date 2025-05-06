@@ -123,6 +123,7 @@ class Orders extends Vendor_Controller
 					redirect("user/orders/order_detail/".$object_id, 'refresh');
 				}
 			}
+			$notes = $this->orders_model->get_notes($note_id = NULL, $note_order_id = $object_id, $note_author = NULL);
 			$object = $this->orders_model->get_order('order', $object_id);
 			$order = $this->get_order($object);
 			
@@ -135,11 +136,67 @@ class Orders extends Vendor_Controller
 				'placeholder' => 'Month, DD YYYY',
 			);
 			$this->data['order'] = $order;
+			$this->data['notes'] = $notes;
 			//echo '<pre>'; print_r($this->data['order']); echo '</pre>'; die();
 			
 			$this->data['class'] = $this->session->flashdata('class');
 			$this->data['message'] = (validation_errors()) ? validation_errors() : $this->session->flashdata('message');
 			$this->_render_page('vendor' . DIRECTORY_SEPARATOR . 'orders' . DIRECTORY_SEPARATOR . 'order_detail', $this->data);
+		}
+	}
+	public function ajax_note($object_id)
+	{
+		if (!$this->ion_auth->logged_in())
+		{
+			// redirect them to the login page
+			redirect($this->access_type . '/login', 'refresh');
+		}
+		elseif (!$this->ion_auth->in_group($group = 4)) // remove this elseif if you want to enable this for non-admins
+		{
+			// redirect them to the home page because they must be an administrator to view this
+			
+			$this->data['message'] = (validation_errors()) ? validation_errors() : $this->session->flashdata('message');
+			$this->_render_error('errors' . DIRECTORY_SEPARATOR . '401', $this->data);
+		}
+		else
+		{
+			// echo '<pre>'; print_r($this->session->userdata()); echo '</pre>';
+			$user_id = $this->session->userdata('user_id');
+			$username = $this->session->userdata('username');
+			
+			$content = $this->input->post('note_comment');
+			if(!empty($content)){
+				$timezone  = 'UP5';
+				$gmt_time = local_to_gmt(strtotime(date('Y-m-d H:i:s')), $timezone);
+				$local_time = gmt_to_local($gmt_time, $timezone);
+				$data = array(
+					'note_order_id' => $object_id,
+					'note_author' => $username,
+					'note_date' => $local_time,
+					'note_date_gmt' => $gmt_time,
+					'note_content' => $content,
+					'note_approved' => 'approved',
+					'user_id' => $user_id,
+				);
+				if($this->orders_model->insert_note($data))
+				{
+					// echo 'yes';
+					$notes = $this->orders_model->get_notes($note_id = NULL, $note_order_id = $object_id, $note_author = NULL);
+					$this->data['notes'] = $notes;
+					$theHTMLResponse = $this->load->view($this->access_type . '/ajax_blocks/block_order_notes', $this->data, true);
+					// print_r($theHTMLResponse);exit();
+					$response = array('response'=>'yes','message'=>'Note Submitted Successfully','content'=>$theHTMLResponse);
+					
+				}else{
+					// print_r("Hello");
+					$response = array('response'=>'no','message'=>'Something Went wrong, Hence your Comment cannot be Submitted');
+				}
+			}else{
+				$response =array('response'=>'no','message'=>'Message Field is empty');
+			}
+
+			$this->output->set_content_type('application/json');
+			$this->output->set_output(json_encode($response));
 		}
 	}
 	function ajax_datatable_pagination(){
@@ -224,6 +281,9 @@ class Orders extends Vendor_Controller
 			$order_meta_array['tracking_number'] = $order_meta_data['tracking_number'];
 			$order_meta_array['order_prefix'] = $order_meta_data['order_prefix'];
 			$order_meta_array['order_serial'] = $order_meta_data['order_serial'];
+			if(isset($order_meta_data['delivery_type'])){
+				$order_meta_array['delivery_type'] = $order_meta_data['delivery_type'];
+			}
 		}
 		if(!empty($order_meta_array)){
 			return $order_meta_array;

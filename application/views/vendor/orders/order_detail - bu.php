@@ -132,6 +132,7 @@
 								</div>
 							</div>
 						</div>
+
 					</div>
 				</div><!-- end row -->
 			<?php echo form_close();?>
@@ -151,5 +152,39 @@
                 <?php endif;?>
             ]
         });
+    });
+
+    $('#submit_comment').on('click', function(e) {
+    	e.preventDefault(); // avoid to execute the actual submit of the form.
+		e.stopPropagation();
+		var l = Ladda.create(this);
+		l.start();
+        var note_comment = $('#note_comment').val();
+        var object_id = <?php echo $order['object_id'];?>;
+        var url = base_url + account_type + "/orders/ajax_note/" + object_id;
+
+        // alert(url);
+        $.ajax({
+			url: url,
+			type: "POST",
+			dataType: "html",
+			data:{
+				note_comment:note_comment
+				}, // serializes the form's elements.
+			success: function(data) {
+				if(data == "yes") {
+					l.stop();
+         	 		
+					$.Notification.autoHideNotify('success', 'top right', 'Comment Submitted!');
+					setTimeout(function(){
+		                  location.reload();
+		                }, 2500); 
+					
+				} else {
+					l.stop();
+					$.Notification.autoHideNotify('error', 'top right', 'Something went wrong');
+				}
+			}
+		});
     });
   </script>
